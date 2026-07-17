@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>СтройБаза48 • Премиум отделка</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap');
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .heading { font-family: 'Playfair Display', Georgia, serif; }
+    .premium { color: #c9a227; }
+    .tile-card {
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), 
+                  box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .tile-card:hover {
+      transform: translateY(-12px) rotateX(8deg) rotateY(8deg);
+      box-shadow: 0 30px 60px -15px rgb(0 0 0 / 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200">
+
+  <!-- Navbar -->
+  <nav class="border-b border-white/10 bg-[#0f172a]/95 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 bg-[#c9a227] rounded-2xl flex items-center justify-center">
+          <span class="text-[#0f172a] font-bold text-2xl">S</span>
+        </div>
+        <div>
+          <div class="font-semibold text-2xl tracking-tight">СтройБаза48</div>
+          <div class="text-[10px] text-[#c9a227] -mt-1">ЛИПЕЦК • С 2014</div>
+        </div>
+      </div>
+      <button onclick="generatePDF()" 
+              class="px-7 py-2.5 bg-[#c9a227] hover:bg-[#d4af37] text-[#0f172a] font-semibold rounded-2xl flex items-center gap-2 text-sm">
+        <i class="fa-solid fa-file-pdf"></i>
+        <span>Сформировать КП</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="min-h-[90vh] flex items-center">
+    <div class="max-w-5xl mx-auto px-6">
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-5 py-1.5 rounded-full border border-white/20 text-sm mb-6">
+          <span class="premium">●</span> Более 10 лет в Липецке
+        </div>
+        <h1 class="heading text-7xl tracking-[-3.5px] leading-none mb-6">Премиальная<br>отделка вашего дома</h1>
+        <p class="text-2xl text-slate-400 max-w-md">Керамогранит • Обои • Ламинат • Двери</p>
+        
+        <div class="mt-10 flex gap-4">
+          <button onclick="document.getElementById('configurator').scrollIntoView({behavior:'smooth'})" 
+                  class="px-9 py-4 bg-[#c9a227] hover:bg-[#d4af37] text-[#0f172a] font-semibold rounded-3xl text-lg">
+            Открыть конфигуратор
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3D Блок -->
+  <section class="max-w-6xl mx-auto px-6 pb-16">
+    <div class="text-center mb-8">
+      <div class="text-[#c9a227] text-sm tracking-[3px]">3D ПРОСМОТР</div>
+      <h2 class="heading text-4xl tracking-tight mt-2">Посмотрите плитку в 3D</h2>
+    </div>
+    
+    <div class="bg-[#1e2937] border border-white/10 rounded-3xl p-8">
+      <div class="grid lg:grid-cols-5 gap-8 items-center">
+        <!-- 3D Canvas -->
+        <div class="lg:col-span-3">
+          <div id="three-container" class="w-full aspect-video bg-[#0f172a] rounded-2xl overflow-hidden border border-white/10"></div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="lg:col-span-2 space-y-4">
+          <div>
+            <label class="text-sm text-slate-400">Цвет / Коллекция</label>
+            <div class="flex flex-wrap gap-2 mt-2" id="color-controls"></div>
+          </div>
+          <div>
+            <label class="text-sm text-slate-400">Поверхность</label>
+            <select id="surface" class="w-full mt-2 bg-[#0f172a] border border-white/10 rounded-2xl px-5 py-3" onchange="update3DTile()">
+              <option value="matte">Матовая</option>
+              <option value="glossy">Глянцевая</option>
+              <option value="relief">Рельефная</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Галерея плитки -->
+  <section class="max-w-7xl mx-auto px-6 pb-16">
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <div class="text-[#c9a227] text-sm tracking-[3px]">КОЛЛЕКЦИИ</div>
+        <h2 class="heading text-4xl tracking-tight">Популярный керамогранит</h2>
+      </div>
+      <a href="#" class="text-sm flex items-center gap-2 hover:text-white">Смотреть все коллекции <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5" id="gallery">
+      <!-- JS заполнит карточки -->
+    </div>
+  </section>
+
+  <!-- Конфигуратор -->
+  <section id="configurator" class="max-w-6xl mx-auto px-6 py-16 border-t border-white/10">
+    <div class="text-center mb-10">
+      <div class="text-[#c9a227] text-sm tracking-[3px]">ИНТЕРАКТИВНЫЙ РАСЧЁТ</div>
+      <h2 class="heading text-5xl tracking-tight">Рассчитайте стоимость плитки</h2>
+    </div>
+
+    <div class="bg-[#1e2937] border border-white/10 rounded-3xl p-10">
+      <div class="grid lg:grid-cols-2 gap-10">
+        <div>
+          <label class="block text-sm text-slate-400 mb-2">Коллекция</label>
+          <select id="collection" class="w-full bg-[#0f172a] border border-white/10 rounded-2xl px-6 py-4 text-lg mb-6" onchange="calculate()">
+            <option value="1450">Итальянская премиум (Carrara, Calacatta) — 1450 ₽</option>
+            <option value="1150">Испанская серия (Porcelanosa) — 1150 ₽</option>
+            <option value="920">Российский керамогранит (Kerama Marazzi) — 920 ₽</option>
+            <option value="780">Базовая серия — 780 ₽</option>
+            <option value="650">Эконом (Китай) — 650 ₽</option>
+          </select>
+
+          <label class="block text-sm text-slate-400 mb-2">Площадь (м²)</label>
+          <input type="range" id="area" min="8" max="150" step="1" value="42" class="w-full accent-[#c9a227]" oninput="calculate()">
+          <div class="flex justify-between text-sm mt-1"><span>8 м²</span><span id="areaValue">42 м²</span><span>150 м²</span></div>
+
+          <div class="mt-6">
+            <label class="block text-sm text-slate-400 mb-2">Формат</label>
+            <div class="flex gap-3">
+              <div onclick="selectFormat(this, 60)" class="format-btn flex-1 text-center py-3 border border-white/20 rounded-2xl cursor-pointer active">60×60</div>
+              <div onclick="selectFormat(this, 120)" class="format-btn flex-1 text-center py-3 border border-white/20 rounded-2xl cursor-pointer">60×120</div>
+              <div onclick="selectFormat(this, 30)" class="format-btn flex-1 text-center py-3 border border-white/20 rounded-2xl cursor-pointer">30×60</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-[#0f172a] border border-white/10 rounded-3xl p-8 flex flex-col">
+          <div>
+            <div class="text-sm text-slate-400">Итоговая стоимость</div>
+            <div id="totalPrice" class="text-7xl font-semibold tabular-nums tracking-tighter mt-1">38 640</div>
+            <div class="text-[#c9a227]">рублей</div>
+          </div>
+          <div class="mt-auto text-sm text-slate-400 space-y-1">
+            <div>Плиток потребуется: <span id="tilesCount" class="text-white font-medium">—</span></div>
+            <div>Доставка: <span class="text-white font-medium">2–7 дней</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // GSAP
+    function initAnimations() {
+      gsap.registerPlugin(ScrollTrigger);
+      gsap.utils.toArray('.gsap-reveal').forEach(el => {
+        gsap.fromTo(el, {opacity:0, y:40}, {opacity:1, y:0, duration:0.8, scrollTrigger: {trigger: el, start:"top 80%"}});
+      });
+    }
+
+    // === 3D БЛОК (Three.js) ===
+    let scene, camera, renderer, tileMesh;
+
+    function init3D() {
+      const container = document.getElementById('three-container');
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(55, container.clientWidth / container.clientHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      // Lighting
+      const light = new THREE.DirectionalLight(0xffffff, 1.2);
+      light.position.set(5, 10, 7);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0x404040, 0.6));
+
+      // Tile
+      const geometry = new THREE.PlaneGeometry(3.2, 3.2);
+      const material = new THREE.MeshPhongMaterial({ color: 0x8B7355, shininess: 30 });
+      tileMesh = new THREE.Mesh(geometry, material);
+      scene.add(tileMesh);
+
+      camera.position.z = 6;
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        tileMesh.rotation.y += 0.003;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Resize
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      // Color buttons
+      createColorButtons();
+    }
+
+    function createColorButtons() {
+      const container = document.getElementById('color-controls');
+      const colors = [
+        {name: 'Carrara', color: '#E8E4D9'},
+        {name: 'Dark Concrete', color: '#3F3F3F'},
+        {name: 'Warm Oak', color: '#8B7355'},
+        {name: 'Grey Marble', color: '#6B7280'}
+      ];
+
+      colors.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = `px-4 py-2 text-sm rounded-2xl border border-white/20 hover:border-[#c9a227]`;
+        btn.innerHTML = c.name;
+        btn.onclick = () => {
+          tileMesh.material.color.set(c.color);
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function update3DTile() {
+      if (!tileMesh) return;
+      const surface = document.getElementById('surface').value;
+      if (surface === 'glossy') tileMesh.material.shininess = 90;
+      else if (surface === 'matte') tileMesh.material.shininess = 15;
+      else tileMesh.material.shininess = 40;
+    }
+
+    // === Галерея ===
+    function initGallery() {
+      const container = document.getElementById('gallery');
+      const tiles = [
+        {name: "Carrara White", price: "1450 ₽/м²"},
+        {name: "Dark Concrete", price: "920 ₽/м²"},
+        {name: "Warm Oak", price: "1150 ₽/м²"},
+        {name: "Grey Marble", price: "980 ₽/м²"},
+        {name: "Beige Travertine", price: "870 ₽/м²"}
+      ];
+
+      tiles.forEach(tile => {
+        const card = document.createElement('div');
+        card.className = `tile-card bg-[#1e2937] border border-white/10 rounded-3xl p-5 cursor-pointer`;
+        card.innerHTML = `
+          <div class="h-36 bg-gradient-to-br from-[#334155] to-[#1e2937] rounded-2xl mb-4 flex items-center justify-center">
+            <i class="fa-solid fa-layer-group text-5xl text-white/30"></i>
+          </div>
+          <div class="font-semibold">${tile.name}</div>
+          <div class="text-[#c9a227] text-sm">${tile.price}</div>
+        `;
+        card.onclick = () => {
+          document.getElementById('configurator').scrollIntoView({behavior:'smooth'});
+        };
+        container.appendChild(card);
+      });
+    }
+
+    // === Конфигуратор ===
+    let selectedFormat = 60;
+
+    function selectFormat(el, size) {
+      document.querySelectorAll('.format-btn').forEach(e => e.classList.remove('!border-[#c9a227]','bg-white/5'));
+      el.classList.add('!border-[#c9a227]','bg-white/5');
+      selectedFormat = size;
+      calculate();
+    }
+
+    function calculate() {
+      const price = parseInt(document.getElementById('collection').value);
+      const area = parseInt(document.getElementById('area').value);
+      document.getElementById('areaValue').innerText = area + ' м²';
+
+      const total = Math.round(area * price);
+      document.getElementById('totalPrice').innerText = total.toLocaleString();
+
+      const tiles = Math.ceil((area * 10000) / (selectedFormat * selectedFormat));
+      document.getElementById('tilesCount').innerText = tiles + ' шт.';
+    }
+
+    // === PDF ===
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const collectionText = document.getElementById('collection').selectedOptions[0].text;
+      const area = document.getElementById('area').value;
+      const total = document.getElementById('totalPrice').innerText;
+
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 210, 28, 'F');
+      doc.setTextColor(201, 162, 39);
+      doc.setFontSize(18);
+      doc.text("СТРОЙБАЗА48", 20, 13);
+      doc.setFontSize(10);
+      doc.text("Премиальные отделочные материалы • Липецк", 20, 20);
+
+      doc.setTextColor(255);
+      doc.setFontSize(13);
+      doc.text("КОММЕРЧЕСКОЕ ПРЕДЛОЖЕНИЕ", 130, 13);
+
+      doc.setTextColor(0);
+      doc.setFontSize(11);
+      doc.text(`Коллекция: ${collectionText}`, 20, 45);
+      doc.text(`Площадь: ${area} м²`, 20, 53);
+      doc.text(`Формат: ${selectedFormat}×${selectedFormat} см`, 20, 61);
+
+      doc.setFontSize(14);
+      doc.setFont(undefined, "bold");
+      doc.text(`ИТОГО: ${total} ₽`, 20, 78);
+
+      doc.setFontSize(10);
+      doc.setFont(undefined, "normal");
+      doc.text("Срок действия: 14 дней", 20, 92);
+      doc.text("Доставка керамогранита: 2–7 дней", 20, 99);
+      doc.text("Тел: 8-(4742)43-38-88  |  home.design48@mail.ru", 20, 110);
+      doc.text("г. Липецк, ул. Брюллова, 7а", 20, 117);
+
+      doc.save("КП_СтройБаза48.pdf");
+    }
+
+    function init() {
+      initAnimations();
+      init3D();
+      initGallery();
+
+      // Конфигуратор
+      document.getElementById('area').addEventListener('input', calculate);
+      document.getElementById('collection').addEventListener('change', calculate);
+      
+      setTimeout(() => {
+        calculate();
+        document.querySelector('.format-btn').classList.add('!border-[#c9a227]', 'bg-white/5');
+      }, 400);
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
